@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ACC Course-Finding Survey</title>
+<style>
+  :root{
+    --ink:#2c2c2a;
+    --ink-soft:#5f5e5a;
+    --line:#d9d5c9;
+    --paper:#faf8f3;
+    --card:#ffffff;
+    --accent:#0f6e56;
+    --accent-light:#e1f5ee;
+    --accent-dark:#04342c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Georgia', 'Times New Roman', serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.6;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:40px 24px 80px;}
+  header{border-bottom:2px solid var(--ink);padding-bottom:20px;margin-bottom:32px;}
+  header .eyebrow{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;margin-bottom:6px;
+  }
+  h1{font-size:26px;margin:0 0 8px;font-weight:400;}
+  header p{font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:var(--ink-soft);margin:0;}
+  .tabs{
+    display:flex;gap:0;margin-bottom:28px;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+  }
+  .tab{
+    flex:1;text-align:center;padding:10px 8px;font-size:13px;
+    background:var(--card);border:1px solid var(--line);cursor:pointer;color:var(--ink-soft);
+  }
+  .tab.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .tab:first-child{border-radius:6px 0 0 6px;}
+  .tab:last-child{border-radius:0 6px 6px 0;}
+  section{display:none;}
+  section.active{display:block;}
+
+  .section-label{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;margin:32px 0 4px;
+  }
+  .section-label:first-of-type{margin-top:0;}
+  .q{
+    background:var(--card);border:1px solid var(--line);border-radius:8px;
+    padding:16px 18px;margin-bottom:12px;
+  }
+  .q-num{
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  .q-text{font-size:16px;margin-bottom:10px;}
+  .opts{display:flex;flex-direction:column;gap:6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;}
+  .opts label{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0;}
+  .opts input{accent-color:var(--accent);width:16px;height:16px;}
+  textarea{
+    width:100%;min-height:80px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;resize:vertical;background:#fff;color:var(--ink);
+  }
+  input[type=text]{
+    width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:6px;
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;background:#fff;color:var(--ink);
+  }
+  .submit-row{margin-top:28px;text-align:center;}
+  button.primary{
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;font-weight:700;
+    background:var(--accent);color:#fff;border:none;border-radius:6px;
+    padding:12px 32px;cursor:pointer;letter-spacing:.02em;
+  }
+  button.primary:hover{background:var(--accent-dark);}
+  button.primary:disabled{background:#b4b2a9;cursor:default;}
+  .status{
+    font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;text-align:center;margin-top:12px;color:var(--ink-soft);
+  }
+  .status.ok{color:var(--accent);}
+
+  /* Results view */
+  .meta-row{
+    display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;
+  }
+  .metric{
+    flex:1;min-width:140px;background:var(--card);border:1px solid var(--line);border-radius:8px;
+    padding:14px 16px;font-family:'Helvetica Neue',Arial,sans-serif;
+  }
+  .metric .num{font-size:28px;font-weight:700;color:var(--accent-dark);font-family:'Georgia',serif;}
+  .metric .lbl{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.08em;margin-top:2px;}
+  .result-q{margin-bottom:22px;}
+  .result-q .q-text{font-size:15px;font-weight:400;margin-bottom:8px;}
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:5px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12.5px;}
+  .bar-label{width:130px;flex-shrink:0;color:var(--ink-soft);text-align:right;}
+  .bar-track{flex:1;background:#efece2;border-radius:4px;overflow:hidden;height:16px;}
+  .bar-fill{background:var(--accent);height:100%;}
+  .bar-count{width:34px;flex-shrink:0;color:var(--ink-soft);}
+  .open-list{list-style:none;padding:0;margin:0;}
+  .open-list li{
+    background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:8px;font-size:14px;
+  }
+  .empty{
+    text-align:center;color:var(--ink-soft);font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:13px;padding:40px 0;
+  }
+  .toolbar{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+  }
+  .toolbar button.ghost{
+    font-size:12px;background:none;border:1px solid var(--line);border-radius:6px;
+    padding:6px 12px;cursor:pointer;color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">IT PROF 12 — Project Management</div>
+    <h1>Course-finding survey: Abuyog Community College</h1>
+    <p>For Grade 12 students of Abuyog National High School. Your answers are anonymous and used only for this academic project.</p>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="survey">Take the survey</div>
+    <div class="tab" data-tab="results">View responses</div>
+  </div>
+
+  <section id="survey" class="active">
+    <form id="surveyForm">
+
+      <div class="section-label">About you</div>
+      <div class="q">
+        <div class="q-text">Track / strand</div>
+        <input type="text" id="track" name="track" placeholder="e.g. STEM, ABM, HUMSS, TVL">
+      </div>
+
+      <div class="section-label">Closed-ended questions</div>
+      <div id="closedQuestions"></div>
+
+      <div class="section-label">Open-ended questions</div>
+      <div id="openQuestions"></div>
+
+      <div class="submit-row">
+        <button type="submit" class="primary" id="submitBtn">Submit response</button>
+        <div class="status" id="status"></div>
+      </div>
+    </form>
+  </section>
+
+  <section id="results">
+    <div class="toolbar">
+      <span style="font-size:13px;color:var(--ink-soft)">Live tally of submitted responses</span>
+      <button class="ghost" id="refreshBtn">Refresh</button>
+    </div>
+    <div class="meta-row" id="metaRow"></div>
+    <div id="resultsBody"></div>
+  </section>
+
+</div>
+
+<script>
+const CLOSED = [
+  {id:'c1', text:'How familiar are you with the courses/programs offered at Abuyog Community College?', opts:['Very familiar','Somewhat familiar','Not familiar']},
+  {id:'c2', text:'Do you already have a specific ACC course in mind?', opts:['Yes','No','Still deciding']},
+  {id:'c3', text:"Where did you first learn about ACC's course offerings?", opts:['School orientation','Friends','Family','Social media','ACC visit','Other']},
+  {id:'c4', text:'Has ACC conducted any orientation, campus tour, or information drive in your school?', opts:['Yes','No','Not sure']},
+  {id:'c5', text:"Do you feel you have enough information about ACC's courses to make a confident decision?", opts:['Yes','No','Somewhat']},
+  {id:'c6', text:'How confident are you in your own skills, interests, or academic strengths when choosing a course at ACC?', opts:['Very confident','Somewhat confident','Not confident']},
+  {id:'c7', text:"Is affordability a major reason you're considering (or not considering) ACC specifically?", opts:['Yes','No']},
+  {id:'c8', text:'Are you aware of scholarships or financial assistance programs available at ACC?', opts:['Yes','No']},
+  {id:'c9', text:'Do your parents/guardians have a strong preference about the course or school you should choose?', opts:['Yes','No']},
+  {id:'c10', text:"Do your friends' or classmates' choices influence your own decision about ACC?", opts:['Yes','No']},
+  {id:'c11', text:'Do you know what job opportunities are available after finishing a course at ACC?', opts:['Yes','No']},
+  {id:'c12', text:'Do you have concerns about job placement or the reputation of ACC courses compared to other schools?', opts:['Yes','No']},
+  {id:'c13', text:'Do you feel anxious, stressed, or unsure about choosing a course, whether at ACC or elsewhere?', opts:['Yes','No','Sometimes']},
+  {id:'c14', text:'Do you feel time pressure (enrollment deadlines) affecting your decision-making about ACC?', opts:['Yes','No']},
+];
+
+const OPEN = [
+  {id:'o1', text:'What is the biggest challenge or obstacle you are facing in deciding whether to take a course at ACC?'},
+  {id:'o2', text:'Can you describe a specific experience, doubt, or concern that made choosing a course at ACC difficult for you?'},
+  {id:'o3', text:'What factors do you consider most important when choosing between ACC and other colleges or universities?'},
+  {id:'o4', text:"How has your family's opinion shaped or affected your course decision, if at all?"},
+  {id:'o5', text:'What kind of support (from school, family, ACC, or government) would help you feel more confident in your decision?'},
+  {id:'o6', text:'If you could suggest one improvement to ACC, in terms of courses offered, information given, or support provided, what would it be?'},
+];
+
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCQiidKfv7FGQLc79rwqfuYeWAI67jAHR2yIsmkxPYIUtz4YsbYX5_rxrLtu1Kvs_6mw/exec';
+
+const closedWrap = document.getElementById('closedQuestions');
+CLOSED.forEach((q, i) => {
+  const div = document.createElement('div');
+  div.className = 'q';
+  div.innerHTML = `
+    <div class="q-num">Question ${i+1}</div>
+    <div class="q-text">${q.text}</div>
+    <div class="opts">
+      ${q.opts.map(o => `<label><input type="radio" name="${q.id}" value="${o}" required> ${o}</label>`).join('')}
+    </div>`;
+  closedWrap.appendChild(div);
+});
+
+const openWrap = document.getElementById('openQuestions');
+OPEN.forEach((q, i) => {
+  const div = document.createElement('div');
+  div.className = 'q';
+  div.innerHTML = `
+    <div class="q-num">Question ${CLOSED.length + i + 1}</div>
+    <div class="q-text">${q.text}</div>
+    <textarea name="${q.id}" placeholder="Type your answer here..." required></textarea>`;
+  openWrap.appendChild(div);
+});
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'results') loadResults();
+  });
+});
+
+// Submit
+const form = document.getElementById('surveyForm');
+const statusEl = document.getElementById('status');
+const submitBtn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  submitBtn.disabled = true;
+  statusEl.textContent = 'Submitting...';
+  statusEl.className = 'status';
+
+  const data = new FormData(form);
+  const entry = {
+    track: data.get('track') || '',
+    submittedAt: new Date().toISOString(),
+  };
+  CLOSED.forEach(q => entry[q.id] = data.get(q.id) || '');
+  OPEN.forEach(q => entry[q.id] = data.get(q.id) || '');
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(entry)
+    });
+    const result = await res.json();
+    if (result && result.ok) {
+      statusEl.textContent = 'Thank you. Your response has been recorded.';
+      statusEl.className = 'status ok';
+      form.reset();
+    } else {
+      throw new Error('no result');
+    }
+  } catch (err) {
+    statusEl.textContent = 'Something went wrong. Please try submitting again.';
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
+
+// Results
+async function loadResults() {
+  const resultsBody = document.getElementById('resultsBody');
+  const metaRow = document.getElementById('metaRow');
+  resultsBody.innerHTML = '<div class="empty">Loading responses...</div>';
+  metaRow.innerHTML = '';
+
+  let entries = [];
+  try {
+    const res = await fetch(SCRIPT_URL);
+    const data = await res.json();
+    entries = (data && data.entries) || [];
+  } catch (err) {
+    resultsBody.innerHTML = '<div class="empty">Could not load responses. Please try refreshing.</div>';
+    return;
+  }
+
+  if (entries.length === 0) {
+    resultsBody.innerHTML = '<div class="empty">No responses yet. Share the survey tab with students to start collecting data.</div>';
+    return;
+  }
+
+  metaRow.innerHTML = `
+    <div class="metric"><div class="num">${entries.length}</div><div class="lbl">Total responses</div></div>
+    <div class="metric"><div class="num">${CLOSED.length}</div><div class="lbl">Closed questions</div></div>
+    <div class="metric"><div class="num">${OPEN.length}</div><div class="lbl">Open questions</div></div>
+  `;
+
+  let html = '';
+
+  CLOSED.forEach((q, i) => {
+    const counts = {};
+    q.opts.forEach(o => counts[o] = 0);
+    entries.forEach(e => { if (counts[e[q.id]] !== undefined) counts[e[q.id]]++; });
+    const max = Math.max(1, ...Object.values(counts));
+
+    html += `<div class="result-q"><div class="q-text">${i+1}. ${q.text}</div>`;
+    q.opts.forEach(o => {
+      const c = counts[o];
+      const pct = Math.round((c / max) * 100);
+      html += `
+        <div class="bar-row">
+          <div class="bar-label">${o}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+          <div class="bar-count">${c}</div>
+        </div>`;
+    });
+    html += `</div>`;
+  });
+
+  OPEN.forEach((q, i) => {
+    const answers = entries.map(e => e[q.id]).filter(Boolean);
+    html += `<div class="result-q"><div class="q-text">${CLOSED.length + i + 1}. ${q.text}</div>`;
+    if (answers.length === 0) {
+      html += `<div class="empty" style="padding:12px 0">No answers yet.</div>`;
+    } else {
+      html += `<ul class="open-list">${answers.map(a => `<li>${a.replace(/</g,'&lt;')}</li>`).join('')}</ul>`;
+    }
+    html += `</div>`;
+  });
+
+  resultsBody.innerHTML = html;
+}
+
+document.getElementById('refreshBtn').addEventListener('click', loadResults);
+</script>
+</body>
+</html>
