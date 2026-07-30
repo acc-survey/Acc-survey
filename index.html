@@ -195,6 +195,10 @@ const OPEN = [
 
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCQiidKfv7FGQLc79rwqfuYeWAI67jAHR2yIsmkxPYIUtz4YsbYX5_rxrLtu1Kvs_6mw/exec';
 
+// Change this to whatever password you want. Only people who enter it can view responses.
+const RESULTS_PASSWORD = 'acc2026';
+let resultsUnlocked = false;
+
 const closedWrap = document.getElementById('closedQuestions');
 CLOSED.forEach((q, i) => {
   const div = document.createElement('div');
@@ -222,6 +226,14 @@ OPEN.forEach((q, i) => {
 // Tabs
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
+    if (tab.dataset.tab === 'results' && !resultsUnlocked) {
+      const attempt = window.prompt('Enter the password to view responses:');
+      if (attempt !== RESULTS_PASSWORD) {
+        if (attempt !== null) alert('Incorrect password.');
+        return;
+      }
+      resultsUnlocked = true;
+    }
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
     tab.classList.add('active');
